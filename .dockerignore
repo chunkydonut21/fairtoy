@@ -1,0 +1,8 @@
+**
+!requirements.txt
+!backend/
+!backend/**
+!data/
+!data/*.csv
+backend/__pycache__/
+backend/Dockerfile
