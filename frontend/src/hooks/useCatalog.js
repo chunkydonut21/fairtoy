@@ -33,23 +33,29 @@ export function useToyDetail(finisherId, toyId) {
 
 // A flag belongs to one finisher, so only that finisher's overview and toy traces change.
 // They are refetched after failures too: a 409 means this view was out of date.
-function useFlagMutation(finisherId, mutationFn) {
+
+export function useFlagSupplier(finisherId) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: catalogKeys.finisher(finisherId) }),
+    mutationFn: ({ supplierId, reason }) => flagSupplier(finisherId, supplierId, reason),
+
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: catalogKeys.finisher(finisherId),
+      }),
   })
 }
 
-export function useFlagSupplier(finisherId) {
-  return useFlagMutation(finisherId, ({ supplierId, reason }) =>
-    flagSupplier(finisherId, supplierId, reason),
-  )
-}
-
 export function useResolveFlag(finisherId) {
-  return useFlagMutation(finisherId, ({ flagId, outcome, note }) =>
-    resolveFlag(finisherId, flagId, outcome, note),
-  )
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ flagId, outcome, note }) => resolveFlag(finisherId, flagId, outcome, note),
+
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: catalogKeys.finisher(finisherId),
+      }),
+  })
 }

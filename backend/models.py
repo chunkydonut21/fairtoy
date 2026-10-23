@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import CheckConstraint, Float, ForeignKey, ForeignKeyConstraint, Index, Integer, UniqueConstraint
+from sqlalchemy import CheckConstraint, Float, ForeignKey, Index, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -24,7 +24,6 @@ class Supplier(Base):
     name: Mapped[str]
     country: Mapped[str]
     factories: Mapped[list[Factory]] = relationship(back_populates="supplier")
-    sources: Mapped[list[PartSource]] = relationship(back_populates="supplier")
 
 
 class SupplierFlag(Base):
@@ -56,15 +55,14 @@ Index(
 
 class Factory(Base):
     __tablename__ = "factory"
-    __table_args__ = (UniqueConstraint("id", "supplier_id", name="uq_factory_supplier"),)
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    supplier_id: Mapped[str] = mapped_column(ForeignKey("supplier.id"))
+    supplier_id: Mapped[str] = mapped_column(ForeignKey("supplier.id"), index=True)
     name: Mapped[str]
     city: Mapped[str]
     country: Mapped[str]
     supplier: Mapped[Supplier] = relationship(back_populates="factories")
-    sources: Mapped[list[PartSource]] = relationship(back_populates="factory", foreign_keys="PartSource.factory_id")
+    sources: Mapped[list[PartSource]] = relationship(back_populates="factory")
 
 
 class Part(Base):
@@ -73,25 +71,17 @@ class Part(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str]
     sources: Mapped[list[PartSource]] = relationship(back_populates="part")
+    bom_entries: Mapped[list[BillOfMaterial]] = relationship(back_populates="part")
 
 
 class PartSource(Base):
     __tablename__ = "part_source"
-    __table_args__ = (
-        Index("idx_source_supplier", "supplier_id"),
-        ForeignKeyConstraint(
-            ["factory_id", "supplier_id"], ["factory.id", "factory.supplier_id"],
-            name="fk_source_factory_supplier",
-        ),
-    )
 
     part_id: Mapped[str] = mapped_column(ForeignKey("part.id"), primary_key=True)
-    supplier_id: Mapped[str] = mapped_column(ForeignKey("supplier.id"), primary_key=True)
-    factory_id: Mapped[str] = mapped_column(primary_key=True)
+    factory_id: Mapped[str] = mapped_column(ForeignKey("factory.id"), primary_key=True, index=True)
     unit_cost_usd: Mapped[float] = mapped_column(Float)
     part: Mapped[Part] = relationship(back_populates="sources")
-    supplier: Mapped[Supplier] = relationship(back_populates="sources")
-    factory: Mapped[Factory] = relationship(back_populates="sources", foreign_keys=[factory_id])
+    factory: Mapped[Factory] = relationship(back_populates="sources")
 
 
 class Toy(Base):
@@ -124,5 +114,5 @@ class BillOfMaterial(Base):
     toy_id: Mapped[str] = mapped_column(ForeignKey("toy.id"), primary_key=True)
     part_id: Mapped[str] = mapped_column(ForeignKey("part.id"), primary_key=True)
     quantity: Mapped[int] = mapped_column(Integer)
-    part: Mapped[Part] = relationship()
+    part: Mapped[Part] = relationship(back_populates="bom_entries")
     toy: Mapped[Toy] = relationship(back_populates="bom_entries")

@@ -77,7 +77,7 @@ def import_parts(session: Session, data_dir: Path, factories: dict[str, Factory]
         if factory is None or factory.supplier_id != row["supplier_id"]:
             raise ValueError(f"Factory/supplier mismatch for {part_id}")
         session.add(PartSource(
-            part=parts[part_id], supplier_id=row["supplier_id"], factory=factory,
+            part=parts[part_id], factory=factory,
             unit_cost_usd=row["unit_cost_usd"],
         ))
 

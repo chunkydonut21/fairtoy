@@ -5,7 +5,7 @@ import { CatalogToolbar } from './CatalogToolbar'
 
 function matchesFilter(item, view) {
   const matchesSearch = `${item.name} ${item.id}`.toLowerCase().includes(view.search.toLowerCase())
-  const affected = item.affected ?? Boolean(item.flag)
+  const affected = item.affected ?? item.flag !== null
   const matchesStatus = view.filter === 'all' || (view.filter === 'affected' ? affected : !affected)
   return matchesSearch && matchesStatus
 }

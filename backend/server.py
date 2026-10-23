@@ -73,9 +73,9 @@ def create_app(db_path: str | Path = DB_PATH) -> FastAPI:
         "/api/finishers/{finisher_id}/suppliers/{supplier_id}/flags", response_model=FlagResponse, status_code=201,
     )
     def flag_supplier(finisher_id: str, supplier_id: str, body: FlagRequest, session: Database):
+        require_finisher_and_supplier(session, finisher_id, supplier_id)
         flag = suppliers.flag_supplier(session, finisher_id, supplier_id, body.reason)
         if flag is None:
-            require_finisher_and_supplier(session, finisher_id, supplier_id)
             raise HTTPException(
                 status_code=409, detail="This supplier is already flagged. Resolve the current flag first.",
             )

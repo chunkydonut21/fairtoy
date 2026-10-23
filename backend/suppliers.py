@@ -32,7 +32,6 @@ def resolve_flag(session: Session, finisher_id: str, flag_id: int, outcome: str,
             SupplierFlag.resolved_at.is_(None),
         )
         .values(resolved_at=now(), outcome=outcome, resolution_note=note)
-        .execution_options(synchronize_session=False)
     ).rowcount
     if not resolved:
         session.rollback()
