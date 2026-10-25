@@ -1,6 +1,6 @@
 # FairToy
 
-View toys and their parts, flag suppliers for child labor, and see which toys are affected. Flags can be resolved with a note.
+FairToy is a supply-chain traceability app for toy companies. Explore toys, their parts, and potential supplier factories; flag suppliers over child-labor concerns, identify potentially affected toys, and keep a history of resolutions.
 
 React frontend, FastAPI backend, SQLite database.
 
@@ -15,7 +15,6 @@ docker compose up --build -d --wait
 Open [localhost:8080](http://localhost:8080). API docs are at [localhost:8080/docs](http://localhost:8080/docs).
 
 CSV data loads automatically. Flags and resolutions are saved between restarts.
-Databases created with the older `part_source.supplier_id` schema are not migrated automatically. Back up any data you need before starting with a fresh database; `create_all()` does not update existing tables.
 
 Stop with `docker compose down`. Add `--volumes` to delete the database and start fresh.
 
